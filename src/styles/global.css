@@ -339,7 +339,7 @@ button {
 }
 
 .card:hover .card__cap strong {
-  color: var(--accent);
+  color: var(--dim);
 }
 
 .empty {
@@ -431,8 +431,8 @@ button {
 }
 
 .spec__val a:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--dim);
+  border-bottom-color: var(--dim);
 }
 
 /* Markdown 內文 */
@@ -533,12 +533,12 @@ button {
 }
 
 .next:hover .next__title {
-  color: var(--accent);
+  color: var(--dim);
 }
 
 .next:hover .next__arrow {
   transform: translateX(5px);
-  color: var(--accent);
+  color: var(--dim);
 }
 
 /* --- 頁尾 ----------------------------------------------------- */

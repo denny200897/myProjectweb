@@ -29,18 +29,29 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
 
   <div class="grid" data-grid>
     {
-      projects.map((p) => (
-        <a class="card" href={`/work/${p.id}/`} data-card data-kind={p.data.kind}>
-          <figure class="card__img">
-            {p.data.cover && (
-              <img src={p.data.cover} alt={p.data.title} loading="lazy" />
-            )}
-          </figure>
-          <p class="card__cap">
-            <strong>{p.data.title}</strong> — {p.data.summary}
-          </p>
-        </a>
-      ))
+      projects.map((p) => {
+        const external = p.data.links.find((l) => l.text.toLowerCase() === 'live') ?? p.data.links[0];
+        const href = external?.href ?? `/work/${p.id}/`;
+        return (
+          <a
+            class="card"
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener' : undefined}
+            data-card
+            data-kind={p.data.kind}
+          >
+            <figure class="card__img">
+              {p.data.cover && (
+                <img src={p.data.cover} alt={p.data.title} loading="lazy" />
+              )}
+            </figure>
+            <p class="card__cap">
+              <strong>{p.data.title}</strong> — {p.data.summary}
+            </p>
+          </a>
+        );
+      })
     }
   </div>
 
