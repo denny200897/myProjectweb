@@ -33,7 +33,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
     </script>
   </head>
   <body>
-    <!-- 捲動進度：頂端一條髮絲線 -->
     <div class="progress" aria-hidden="true"><span data-progress></span></div>
 
     <div class="wrap">
@@ -69,7 +68,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
       </main>
     </div>
 
-    <!-- 底部固定列：左邊連結，右邊翻頁 -->
     <div class="dock">
       <nav class="dock__links">
         {site.footerLinks.map((l) => (
@@ -91,7 +89,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function setup() {
-        /* 1. 主題切換 */
         const toggle = document.getElementById('theme-toggle');
         if (toggle && !toggle.dataset.bound) {
           toggle.addEventListener('click', () => {
@@ -104,7 +101,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
           toggle.dataset.bound = 'true';
         }
 
-        /* 2. 進場／捲動揭露 */
         const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
         if (reduced) {
           targets.forEach((el) => el.classList.add('is-in'));
@@ -124,7 +120,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
           targets.forEach((el) => io.observe(el));
         }
 
-        /* 3. 頂端捲動進度線 */
         const bar = document.querySelector<HTMLElement>('[data-progress]');
         let ticking = false;
         function frame() {
@@ -142,7 +137,6 @@ const pageTitle = title ? `${title} — ${site.name}` : site.name;
         addEventListener('resize', onScroll);
         frame();
 
-        /* 4. 回到頂端 */
         document.querySelector('[data-totop]')?.addEventListener('click', () => {
           scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
         });

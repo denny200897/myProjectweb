@@ -7,7 +7,6 @@ const projects = (await getCollection('projects'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => a.data.order - b.data.order);
 
-// 篩選膠囊：All + 所有出現過的 kind
 const kinds = [...new Set(projects.map((p) => p.data.kind))];
 ---
 
@@ -61,8 +60,6 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
     function initShowcase() {
       const grid = document.querySelector('[data-grid]');
       if (!grid) return;
-      // 每個 grid 只初始化一次：astro:page-load 的監聽掛在 document 上，
-      // 換頁回來會累積呼叫，沒有這道防線就會重複綁定造成一次跳好幾頁。
       if (grid.dataset.ready) return;
       grid.dataset.ready = '1';
 
@@ -92,7 +89,6 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
           const i = visible.indexOf(c);
           c.hidden = i === -1;
           if (i !== -1) {
-            // 依序浮現：每張卡延遲 --i * 45ms
             c.style.setProperty('--i', String(i));
             c.classList.remove('is-in');
             void c.offsetWidth;
@@ -100,7 +96,6 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
           }
         });
 
-        // 翻到第 2 頁以後，標題後段換成「— Page N」
         if (heroRest) {
           heroRest.textContent = page > 0 ? `— Page ${page + 1}` : heroText;
           heroRest.classList.toggle('hero__page', page > 0);
@@ -143,7 +138,6 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
       render();
     }
 
-    // dock（含 Prev/Next）排在 <main> 之後，所以要等 DOM 解析完才抓得到
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initShowcase, { once: true });
     } else {
