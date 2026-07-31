@@ -1,0 +1,81 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects'))
+    .filter((p) => !p.data.draft)
+    .sort((a, b) => a.data.order - b.data.order);
+
+  return projects.map((p, i) => ({
+    params: { id: p.id },
+    props: {
+      project: p,
+      next: projects[(i + 1) % projects.length],
+    },
+  }));
+}
+
+const { project, next } = Astro.props;
+const { Content } = await render(project);
+const d = project.data;
+---
+
+<Base title={d.title} description={d.summary}>
+  <a class="back" href="/"><span class="back__arrow">←</span> Index</a>
+
+  <article class="case">
+    <div class="entry__meta" data-reveal>
+      <span>{d.year}</span>
+      <span>{d.kind}</span>
+    </div>
+
+    <h1 class="case__title" transition:name={`t-${project.id}`}>{d.title}</h1>
+    <p class="case__summary" data-reveal data-delay="60">{d.summary}</p>
+
+    {d.cover && (
+      <figure class="case__figure" data-parallax>
+        <img src={d.cover} alt={d.title} transition:name={`c-${project.id}`} />
+      </figure>
+    )}
+
+    <div class="spec" data-reveal>
+      <div>
+        <div class="spec__key">Year</div>
+        <div class="spec__val">{d.year}</div>
+      </div>
+      <div>
+        <div class="spec__key">Type</div>
+        <div class="spec__val">{d.kind}</div>
+      </div>
+      {d.stack.length > 0 && (
+        <div>
+          <div class="spec__key">Stack</div>
+          <div class="spec__val">{d.stack.join(', ')}</div>
+        </div>
+      )}
+      {d.links.length > 0 && (
+        <div>
+          <div class="spec__key">Links</div>
+          <div class="spec__val">
+            {d.links.map((l) => (
+              <div><a href={l.href} rel="noopener" target="_blank">{l.text} ↗</a></div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <div class="prose" data-reveal>
+      <Content />
+    </div>
+  </article>
+
+  {next && next.id !== project.id && (
+    <a class="next" href={`/work/${next.id}/`} data-reveal data-cursor-target>
+      <span class="next__key">Next</span>
+      <span class="next__title">{next.data.title}</span>
+      <span class="next__arrow">→</span>
+    </a>
+  )}
+</Base>

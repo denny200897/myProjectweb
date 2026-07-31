@@ -1,0 +1,155 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { site } from '../site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : site.name;
+---
+
+<!doctype html>
+<html lang="zh-Hant" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <ClientRouter />
+    <script is:inline>
+      const theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    </script>
+  </head>
+  <body>
+    <!-- 捲動進度：頂端一條髮絲線 -->
+    <div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+    <div class="wrap">
+      <header class="masthead" data-reveal>
+        <h1 class="masthead__name">
+          <a href="/">{site.name}</a>
+        </h1>
+        <nav class="masthead__links">
+          {site.nav.map((l) => (
+            <a href={l.href} class:list={[l.dim && 'is-dim']}>{l.text}</a>
+          ))}
+          <button class="theme-toggle" id="theme-toggle" aria-label="切換主題">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <slot />
+      </main>
+    </div>
+
+    <!-- 底部固定列：左邊連結，右邊翻頁 -->
+    <div class="dock">
+      <nav class="dock__links">
+        {site.footerLinks.map((l) => (
+          <a href={l.href} rel="noopener">{l.text}</a>
+        ))}
+      </nav>
+      <div class="dock__pager">
+        <span class="dock__count" data-count></span>
+        <button class="pager" data-prev type="button" disabled>
+          <span class="pager__arrow">‹</span> Prev
+        </button>
+        <button class="pager" data-next type="button" disabled>
+          Next <span class="pager__arrow">›</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function setup() {
+        /* 1. 主題切換 */
+        const toggle = document.getElementById('theme-toggle');
+        if (toggle && !toggle.dataset.bound) {
+          toggle.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+          });
+          toggle.dataset.bound = 'true';
+        }
+
+        /* 2. 進場／捲動揭露 */
+        const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+        if (reduced) {
+          targets.forEach((el) => el.classList.add('is-in'));
+        } else {
+          const io = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (!e.isIntersecting) return;
+                const el = e.target as HTMLElement;
+                const delay = Number(el.dataset.delay || 0);
+                setTimeout(() => el.classList.add('is-in'), delay);
+                io.unobserve(el);
+              });
+            },
+            { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
+          );
+          targets.forEach((el) => io.observe(el));
+        }
+
+        /* 3. 頂端捲動進度線 */
+        const bar = document.querySelector<HTMLElement>('[data-progress]');
+        let ticking = false;
+        function frame() {
+          ticking = false;
+          const h = document.documentElement;
+          const max = h.scrollHeight - innerHeight;
+          if (bar) bar.style.transform = `scaleX(${max > 0 ? h.scrollTop / max : 0})`;
+        }
+        function onScroll() {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(frame);
+        }
+        addEventListener('scroll', onScroll, { passive: true });
+        addEventListener('resize', onScroll);
+        frame();
+
+        /* 4. 回到頂端 */
+        document.querySelector('[data-totop]')?.addEventListener('click', () => {
+          scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+      }
+
+      setup();
+      document.addEventListener('astro:page-load', setup);
+    </script>
+  </body>
+</html>

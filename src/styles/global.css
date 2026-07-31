@@ -1,0 +1,683 @@
+/* ---------------------------------------------------------------
+   Killer Portfolio 風格 — 大圖卡展示
+   --------------------------------------------------------------- */
+
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --text: #1c1b1a;
+  --accent: #c45d3e;
+  --dim: #868480;
+  --border: #e8e6e2;
+  --chip: #f4f4f3;
+
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Noto Sans TC', 'PingFang TC', system-ui, sans-serif;
+
+  /* 外框：眉標與底部列貼齊螢幕兩側 */
+  --measure: 120rem;
+  --gutter: clamp(1.25rem, 3vw, 2.5rem);
+  /* 卡片網格：只有它限寬置中 */
+  --grid-w: 62rem;
+  --ease: cubic-bezier(0.22, 0.7, 0.16, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --text: #f0f0f0;
+  --accent: #e07a5f;
+  --dim: #8a8a8a;
+  --border: #2a2a2a;
+  --chip: #232323;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.wrap {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+/* --- 捲動揭露 -------------------------------------------------- */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- 頂端捲動進度線 -------------------------------------------- */
+
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* --- 眉標 ------------------------------------------------------ */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1rem;
+}
+
+.masthead__name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.masthead__name a {
+  transition: opacity 0.2s;
+}
+
+.masthead__name a:hover {
+  opacity: 0.7;
+}
+
+.masthead__label {
+  display: none;
+}
+
+.masthead__links {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.masthead__links a {
+  display: block;
+  padding: 0.5rem 0.85rem;
+  color: var(--dim);
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.masthead__links a {
+  color: var(--text);
+}
+
+.masthead__links a.is-dim {
+  color: var(--dim);
+}
+
+.masthead__links a:hover {
+  color: var(--text);
+  background: var(--chip);
+}
+
+/* --- 主題切換 -------------------------------------------------- */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  color: var(--dim);
+  transition: color 0.2s, background 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .icon-moon {
+  display: block;
+}
+
+/* --- Hero 區塊 -------------------------------------------------- */
+
+.hero {
+  text-align: center;
+  padding-block: clamp(2rem, 5vw, 3.25rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+.hero__title {
+  margin: 0 auto;
+  max-width: 30ch;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.hero__title strong {
+  font-weight: 700;
+}
+
+/* 第 2 頁以後才出現的「— Page N」 */
+.hero__page {
+  color: var(--dim);
+}
+
+/* --- 篩選器 -------------------------------------------------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.filter {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: transparent;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.filter:hover {
+  background: var(--chip);
+}
+
+.filter.is-active {
+  color: var(--bg);
+  background: var(--text);
+}
+
+/* --- 圖卡網格 -------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* 列間距刻意留大，讓每一排各自成組 */
+  gap: clamp(3rem, 6vw, 5.5rem) 1.9rem;
+  max-width: var(--grid-w);
+  margin-inline: auto;
+  padding-bottom: clamp(5rem, 12vw, 8rem);
+}
+
+@media (max-width: 820px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* 卡片進場：依序浮現，--i 由 JS 指派 */
+.card {
+  display: block;
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.card.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+  transition-delay: calc(var(--i, 0) * 45ms);
+}
+
+.card__img {
+  margin: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--chip);
+  /* 白底圖也要看得出邊界 */
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.card:hover .card__img img {
+  transform: scale(1.035);
+}
+
+.card__cap {
+  margin: 0.7rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--dim);
+  /* 最多三行 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__cap strong {
+  font-weight: 600;
+  color: var(--text);
+  transition: color 0.2s;
+}
+
+.card:hover .card__cap strong {
+  color: var(--accent);
+}
+
+.empty {
+  padding-block: 3rem 8rem;
+  text-align: center;
+  color: var(--dim);
+}
+
+/* --- 專案內頁 ------------------------------------------------- */
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--dim);
+  padding: 0.5rem 0.85rem;
+  margin-block: 1.5rem;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.back:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+.back__arrow {
+  transition: transform 0.3s var(--ease);
+}
+
+.back:hover .back__arrow {
+  transform: translateX(-3px);
+}
+
+.case {
+  padding-block: clamp(1.5rem, 4vw, 2.5rem) clamp(2rem, 6vw, 4rem);
+}
+
+.case__title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.case__summary {
+  max-width: 44ch;
+  margin: 0.75rem 0 0;
+  font-size: 1.1rem;
+  color: var(--dim);
+}
+
+.case__figure {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  background: var(--chip);
+  overflow: hidden;
+}
+
+.case__figure img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1.25rem;
+  margin: clamp(2rem, 5vw, 3rem) 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.spec__key {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.spec__val {
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.spec__val a {
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.spec__val a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Markdown 內文 */
+.prose {
+  max-width: 36rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 1em 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.prose h2 {
+  margin: 2em 0 0.5em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.prose a {
+  color: var(--accent);
+  border-bottom: 1px solid var(--accent);
+  transition: opacity 0.2s;
+}
+
+.prose a:hover {
+  opacity: 0.7;
+}
+
+.prose code {
+  font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+  font-size: 0.85em;
+  background: var(--border);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+.prose img {
+  margin: 1.5em 0;
+  border-radius: 8px;
+}
+
+.prose blockquote {
+  margin: 1.25em 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--dim);
+  font-style: italic;
+}
+
+/* --- 下一個專案 ------------------------------------------------ */
+
+.next {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  margin-block: 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.next:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .next:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.next__key {
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.next__title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.next__arrow {
+  margin-left: auto;
+  color: var(--dim);
+  transition: transform 0.35s var(--ease), color 0.3s;
+}
+
+.next:hover .next__title {
+  color: var(--accent);
+}
+
+.next:hover .next__arrow {
+  transform: translateX(5px);
+  color: var(--accent);
+}
+
+/* --- 頁尾 ----------------------------------------------------- */
+
+.dock {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem var(--gutter) 1.1rem;
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.dock a,
+.dock button {
+  pointer-events: auto;
+}
+
+.dock__links {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.dock__links a {
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+}
+
+.dock__links a:hover {
+  background: var(--chip);
+}
+
+.dock__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dock__count {
+  margin-right: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  color: var(--text);
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.pager:hover:not(:disabled) {
+  background: var(--chip);
+}
+
+.pager:disabled {
+  color: var(--dim);
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pager__arrow {
+  font-size: 1.15em;
+  line-height: 1;
+  transition: transform 0.25s var(--ease);
+}
+
+[data-prev]:hover:not(:disabled) .pager__arrow {
+  transform: translateX(-3px);
+}
+
+[data-next]:hover:not(:disabled) .pager__arrow {
+  transform: translateX(3px);
+}
+
+/* 讓內容不被 dock 蓋住 */
+body {
+  padding-bottom: 4.5rem;
+}
+
+@media (max-width: 620px) {
+  .dock {
+    font-size: 0.82rem;
+    padding-inline: 1rem;
+  }
+  .dock__links a,
+  .pager {
+    padding-inline: 0.5rem;
+  }
+}
+
+/* --- 頁面轉場 --------------------------------------------------- */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+}
+
+/* --- 降低動態偏好 ------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card:hover .card__img img {
+    transform: none;
+  }
+}
