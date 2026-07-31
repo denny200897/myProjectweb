@@ -26,7 +26,7 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
     </div>
   </section>
 
-  <div class="grid" data-grid>
+  <div class="grid" data-grid data-per-page={site.perPage}>
     {
       projects.map((p) => {
         const external = p.data.links.find((l) => l.text.toLowerCase() === 'live') ?? p.data.links[0];
@@ -56,10 +56,11 @@ const kinds = [...new Set(projects.map((p) => p.data.kind))];
 
   <p class="empty" data-empty hidden>沒有符合的專案。</p>
 
-  <script is:inline define:vars={{ perPage: site.perPage }}>
+  <script>
     function initShowcase() {
       const grid = document.querySelector('[data-grid]');
       if (!grid) return;
+      const perPage = Number(grid.dataset.perPage) || 6;
       if (grid.dataset.ready) return;
       grid.dataset.ready = '1';
 

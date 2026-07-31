@@ -17,6 +17,9 @@ export default defineConfig({
       styleDirective: {
         resources: ["'self'", 'https://fonts.googleapis.com'],
       },
+      scriptDirective: {
+        hashes: ['sha256-iECsteS0kvEyJj9vEdnhAozZ6uzsYEKreLo7Trm4V4g='],
+      },
     },
   },
 });
