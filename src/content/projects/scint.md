@@ -1,5 +1,5 @@
 ---
-title: SCINT北台灣學生資訊社群官網
+title: SCINT北臺灣學生資訊社群官網
 year: '2026'
 kind: Web sites
 summary: 學生資訊社群官方網站
