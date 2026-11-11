@@ -1,7 +1,7 @@
 ---
 title: Aegis CLI
 year: '2026'
-kind: Web sites
+kind: CLI
 summary: 這是一個自動化資安程式碼審查工具，於黑客松製作
 stack: ['Go']
 cover: /covers/Aegis cli.png
